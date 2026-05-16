@@ -2,777 +2,1587 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vehicle Detection Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap"
-        rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicle Detection Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        :root {
-            --bg: #080c10;
-            --panel: #0d1117;
-            --border: #1c2a38;
-            --border2: #243345;
-            --amber: #f5a623;
-            --cyan: #00d4ff;
-            --green: #39d353;
-            --red: #ff4545;
-            --red-dim: #4a0f0f;
-            --purple: #a855f7;
-            --text: #c9d8e8;
-            --muted: #4a6278;
-            --mono: 'Share Tech Mono', monospace;
-            --display: 'Barlow Condensed', sans-serif;
-        }
+    :root {
+      --bg: #080c10;
+      --panel: #0d1117;
+      --border: #1c2a38;
+      --border2: #243345;
+      --amber: #f5a623;
+      --cyan: #00d4ff;
+      --green: #39d353;
+      --red: #ff4545;
+      --red-dim: #4a0f0f;
+      --purple: #a855f7;
+      --text: #c9d8e8;
+      --muted: #4a6278;
+      --mono: 'Share Tech Mono', monospace;
+      --display: 'Barlow Condensed', sans-serif;
+    }
 
-        html,
-        body {
-            height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--display);
-            overflow-x: hidden;
-        }
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--display);
+      overflow-x: hidden;
+    }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, .08) 2px, rgba(0, 0, 0, .08) 4px);
-            pointer-events: none;
-            z-index: 9999;
-        }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, .08) 2px, rgba(0, 0, 0, .08) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
 
-        /* ── Alert Bar ── */
-        #alert-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 52px;
-            background: var(--red);
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            z-index: 1000;
-            box-shadow: 0 0 40px rgba(255, 69, 69, .6);
-            transition: opacity .4s, transform .4s;
-        }
+    /* ── Alert Bar ── */
+    #alert-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: var(--red);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 1000;
+      box-shadow: 0 0 40px rgba(255, 69, 69, .6);
+      transition: opacity .4s, transform .4s;
+    }
 
-        #alert-bar.hidden {
-            opacity: 0;
-            transform: translateY(-100%);
-            pointer-events: none;
-        }
+    #alert-bar.hidden {
+      opacity: 0;
+      transform: translateY(-100%);
+      pointer-events: none;
+    }
 
-        #alert-bar .alert-prefix {
-            flex-shrink: 0;
-            background: #fff;
-            color: var(--red);
-            font-family: var(--display);
-            font-weight: 900;
-            font-size: 1.05rem;
-            letter-spacing: .1em;
-            padding: 0 18px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-        }
+    #alert-bar .alert-prefix {
+      flex-shrink: 0;
+      background: #fff;
+      color: var(--red);
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 1.05rem;
+      letter-spacing: .1em;
+      padding: 0 18px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
 
-        .marquee-wrap {
-            flex: 1;
-            overflow: hidden;
-        }
+    .marquee-wrap {
+      flex: 1;
+      overflow: hidden;
+    }
 
-        .marquee-track {
-            display: flex;
-            animation: marquee 12s linear infinite;
-            white-space: nowrap;
-        }
+    .marquee-track {
+      display: flex;
+      animation: marquee 12s linear infinite;
+      white-space: nowrap;
+    }
 
-        .marquee-track span {
-            font-family: var(--display);
-            font-weight: 900;
-            font-size: 1.35rem;
-            letter-spacing: .25em;
-            color: #fff;
-            padding: 0 80px;
-        }
+    .marquee-track span {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 1.35rem;
+      letter-spacing: .25em;
+      color: #fff;
+      padding: 0 80px;
+    }
 
-        @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
 
-            100% {
-                transform: translateX(-50%);
-            }
-        }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
 
-        /* ── Layout ── */
-        #app {
-            min-height: 100vh;
-            padding: 72px 28px 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    /* ── Layout ── */
+    #app {
+      min-height: 100vh;
+      padding: 72px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
 
-        /* ── Header ── */
-        header {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border2);
-        }
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border2);
+    }
 
-        .header-left h1 {
-            font-family: var(--display);
-            font-weight: 900;
-            font-size: clamp(1.6rem, 3vw, 2.4rem);
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: #fff;
-            line-height: 1;
-        }
+    .header-left h1 {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+    }
 
-        .header-left .subtitle {
-            font-family: var(--mono);
-            font-size: .72rem;
-            color: var(--muted);
-            margin-top: 6px;
-            letter-spacing: .1em;
-        }
+    .header-left .subtitle {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 6px;
+      letter-spacing: .1em;
+    }
 
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-        }
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
 
-        .status-dot {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--mono);
-            font-size: .72rem;
-            color: var(--green);
-        }
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--green);
+    }
 
-        .status-dot::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 8px var(--green);
-            animation: pulse 2s infinite;
-        }
+    .status-dot::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
 
-        @keyframes pulse {
+    @keyframes pulse {
 
-            0%,
-            100% {
-                opacity: 1
-            }
+      0%,
+      100% {
+        opacity: 1
+      }
 
-            50% {
-                opacity: .3
-            }
-        }
+      50% {
+        opacity: .3
+      }
+    }
 
-        /* ── Session Selector ── */
-        .session-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    /* ── Session Selector ── */
+    .session-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-        .session-row label {
-            font-family: var(--mono);
-            font-size: .68rem;
-            color: var(--muted);
-            letter-spacing: .1em;
-            white-space: nowrap;
-        }
+    .session-row label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
 
-        select#session-select {
-            background: var(--panel);
-            border: 1px solid var(--border2);
-            color: var(--text);
-            font-family: var(--mono);
-            font-size: .72rem;
-            padding: 7px 10px;
-            outline: none;
-            min-width: 280px;
-            max-width: 380px;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a6278' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
+    select#session-select {
+      background: var(--panel);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: .72rem;
+      padding: 7px 10px;
+      outline: none;
+      min-width: 280px;
+      max-width: 380px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a6278' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
 
-        select#session-select:focus {
-            border-color: var(--cyan);
-        }
+    select#session-select:focus {
+      border-color: var(--cyan);
+    }
 
-        select#session-select option {
-            background: #0d1117;
-        }
+    select#session-select option {
+      background: #0d1117;
+    }
 
-        .btn-refresh {
-            background: transparent;
-            border: 1px solid var(--border2);
-            color: var(--cyan);
-            font-family: var(--mono);
-            font-size: .72rem;
-            letter-spacing: .08em;
-            padding: 7px 14px;
-            cursor: pointer;
-            transition: background .15s;
-        }
+    .btn-refresh {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: background .15s;
+    }
 
-        .btn-refresh:hover {
-            background: rgba(0, 212, 255, .08);
-        }
+    .btn-refresh:hover {
+      background: rgba(0, 212, 255, .08);
+    }
 
-        /* ── Cards ── */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
+    /* ── Cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
 
-        .card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 22px 24px 20px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color .3s;
-        }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 22px 24px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s;
+    }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
-            background: var(--accent-color);
-        }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent-color);
+    }
 
-        .card:hover {
-            border-color: var(--accent-color);
-        }
+    .card:hover {
+      border-color: var(--accent-color);
+    }
 
-        .card-icon {
-            font-size: 2.2rem;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
+    .card-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
 
-        .card-label {
-            font-family: var(--mono);
-            font-size: .68rem;
-            letter-spacing: .15em;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
+    .card-label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      letter-spacing: .15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
 
-        .card-value {
-            font-family: var(--display);
-            font-weight: 900;
-            font-size: 3.2rem;
-            line-height: 1;
-            color: var(--accent-color);
-        }
+    .card-value {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 3.2rem;
+      line-height: 1;
+      color: var(--accent-color);
+    }
 
-        .card-sublabel {
-            font-family: var(--mono);
-            font-size: .62rem;
-            color: var(--muted);
-            margin-top: 6px;
-        }
+    .card-sublabel {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
 
-        .card-car {
-            --accent-color: var(--amber);
-        }
+    .card-car {
+      --accent-color: var(--amber);
+    }
 
-        .card-bus {
-            --accent-color: var(--green);
-        }
+    .card-bus {
+      --accent-color: var(--green);
+    }
 
-        .card-truck {
-            --accent-color: var(--cyan);
-        }
+    .card-truck {
+      --accent-color: var(--cyan);
+    }
 
-        .card-moto {
-            --accent-color: var(--purple);
-        }
+    .card-moto {
+      --accent-color: var(--purple);
+    }
 
-        .card-total {
-            --accent-color: #fff;
-            background: linear-gradient(135deg, #0d1117 0%, #121c28 100%);
-        }
+    .card-total {
+      --accent-color: #fff;
+      background: linear-gradient(135deg, #0d1117 0%, #121c28 100%);
+    }
 
-        .alert-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--red);
-            color: #fff;
-            font-family: var(--mono);
-            font-size: .58rem;
-            letter-spacing: .1em;
-            padding: 2px 8px;
-            opacity: 0;
-            transition: opacity .3s;
-            animation: blink-badge 1s infinite;
-        }
+    .alert-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--red);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: .58rem;
+      letter-spacing: .1em;
+      padding: 2px 8px;
+      opacity: 0;
+      transition: opacity .3s;
+      animation: blink-badge 1s infinite;
+    }
 
-        .card.alerted .alert-badge {
-            opacity: 1;
-        }
+    .card.alerted .alert-badge {
+      opacity: 1;
+    }
 
-        @keyframes blink-badge {
+    @keyframes blink-badge {
 
-            0%,
-            100% {
-                opacity: 1
-            }
+      0%,
+      100% {
+        opacity: 1
+      }
 
-            50% {
-                opacity: .3
-            }
-        }
+      50% {
+        opacity: .3
+      }
+    }
 
-        /* ── Bottom Row ── */
-        .bottom-row {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 16px;
-        }
+    /* ── Bottom Row ── */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
 
-        @media (max-width: 900px) {
-            .bottom-row {
-                grid-template-columns: 1fr;
-            }
-        }
+    @media (max-width: 900px) {
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+    }
 
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 20px 22px;
-        }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+    }
 
-        .panel-title {
-            font-family: var(--mono);
-            font-size: .7rem;
-            letter-spacing: .18em;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .panel-title {
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: .18em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .panel-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border2);
-        }
+    .panel-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+    }
 
-        .chart-wrap {
-            position: relative;
-            height: 240px;
-        }
+    .chart-wrap {
+      position: relative;
+      height: 240px;
+    }
 
-        .meta-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+    .meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-        .meta-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-        }
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
 
-        .meta-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+    .meta-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
 
-        .meta-key {
-            font-family: var(--mono);
-            font-size: .65rem;
-            color: var(--muted);
-            letter-spacing: .1em;
-            text-transform: uppercase;
-        }
+    .meta-key {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
 
-        .meta-val {
-            font-family: var(--mono);
-            font-size: .72rem;
-            color: var(--text);
-            text-align: right;
-            max-width: 180px;
-            word-break: break-all;
-        }
+    .meta-val {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--text);
+      text-align: right;
+      max-width: 180px;
+      word-break: break-all;
+    }
 
-        footer {
-            font-family: var(--mono);
-            font-size: .65rem;
-            color: var(--muted);
-            letter-spacing: .08em;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-        }
+    footer {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
 
-        #last-updated {
-            color: var(--cyan);
-        }
+    #last-updated {
+      color: var(--cyan);
+    }
 
-        /* ── Empty / Error state ── */
-        #error-msg {
-            display: none;
-            background: rgba(255, 69, 69, .08);
-            border: 1px solid var(--red-dim);
-            color: var(--red);
-            font-family: var(--mono);
-            font-size: .72rem;
-            padding: 10px 16px;
-        }
+    /* ── Empty / Error state ── */
+    #error-msg {
+      display: none;
+      background: rgba(255, 69, 69, .08);
+      border: 1px solid var(--red-dim);
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: .72rem;
+      padding: 10px 16px;
+    }
 
-        .empty-state {
-            font-family: var(--mono);
-            font-size: .75rem;
-            color: var(--muted);
-            text-align: center;
-            padding: 40px 0;
-            letter-spacing: .08em;
-        }
-    </style>
+    .empty-state {
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px 0;
+      letter-spacing: .08em;
+    }
+
+    /* ── Detection Modal ── */
+    #detection-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 16, .96);
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 28px 20px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    #detection-modal.open {
+      display: flex;
+    }
+
+    .det-panel {
+      background: var(--panel);
+      border: 1px solid var(--border2);
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .det-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .det-panel-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .det-panel-title .det-model-tag {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--cyan);
+      border: 1px solid var(--border2);
+      padding: 2px 8px;
+      margin-left: 12px;
+      letter-spacing: .08em;
+    }
+
+    .det-close {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .68rem;
+      padding: 5px 14px;
+      cursor: pointer;
+      letter-spacing: .1em;
+      transition: all .15s;
+    }
+
+    .det-close:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .det-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .det-drop-zone {
+      border: 1px dashed var(--border2);
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+
+    .det-drop-zone:hover,
+    .det-drop-zone.drag-over {
+      border-color: var(--cyan);
+      background: rgba(0, 212, 255, .04);
+    }
+
+    .det-drop-zone .main-lbl {
+      font-family: var(--mono);
+      font-size: .73rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .det-drop-zone .sub-lbl {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: #253545;
+      margin-top: 6px;
+      letter-spacing: .06em;
+      pointer-events: none;
+    }
+
+    #det-file-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .det-file-info {
+      display: none;
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--muted);
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      letter-spacing: .06em;
+    }
+
+    .det-file-info strong {
+      color: var(--text);
+    }
+
+    .det-settings {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .det-si {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: .67rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .det-si input[type=range] {
+      width: 100px;
+      accent-color: var(--cyan);
+    }
+
+    .det-si .v {
+      color: var(--cyan);
+      min-width: 30px;
+    }
+
+    .det-si .tag {
+      border: 1px solid var(--border2);
+      padding: 2px 10px;
+      font-size: .64rem;
+      color: var(--muted);
+    }
+
+    .det-btn-start {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .det-btn-start:hover:not(:disabled) {
+      background: rgba(0, 212, 255, .07);
+    }
+
+    .det-btn-start:disabled {
+      opacity: .28;
+      cursor: not-allowed;
+    }
+
+    .det-btn-stop {
+      width: 100%;
+      padding: 9px;
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: .9rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: none;
+      transition: background .15s;
+    }
+
+    .det-btn-stop:hover {
+      background: rgba(255, 69, 69, .07);
+    }
+
+    .det-btn-reset {
+      width: 100%;
+      padding: 9px;
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: .9rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: none;
+      transition: background .15s, color .15s;
+    }
+
+    .det-btn-reset:hover {
+      background: rgba(255, 255, 255, .04);
+      color: var(--text);
+    }
+
+    .det-btn-rerun {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: none;
+      transition: background .15s;
+    }
+
+    .det-btn-rerun:hover {
+      background: rgba(245, 166, 35, .07);
+    }
+
+    .det-model-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .det-model-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .det-model-btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .65rem;
+      letter-spacing: .1em;
+      padding: 5px 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all .15s;
+    }
+
+    .det-model-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .det-model-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 212, 255, .07);
+    }
+
+    .det-prog-wrap {
+      height: 2px;
+      background: var(--border);
+      display: none;
+    }
+
+    .det-prog-fill {
+      height: 100%;
+      background: var(--cyan);
+      transition: width .6s;
+      width: 0%;
+    }
+
+    .det-prog-label {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .det-stream-section {
+      display: none;
+    }
+
+    .det-section-title {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .det-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+      margin-left: 10px;
+    }
+
+    .det-section-title .accent {
+      color: var(--cyan);
+      margin-left: 8px;
+    }
+
+    #det-stream-img {
+      width: 100%;
+      display: block;
+      background: #000;
+      min-height: 200px;
+      border: 1px solid var(--border);
+    }
+
+    .det-live-counts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .det-cc {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .det-cc .lb {
+      font-family: var(--mono);
+      font-size: .58rem;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .det-cc .nm {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 1.9rem;
+      color: var(--text);
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .det-cc.car .nm {
+      color: var(--amber);
+    }
+
+    .det-cc.bus .nm {
+      color: var(--green);
+    }
+
+    .det-cc.truk .nm {
+      color: var(--cyan);
+    }
+
+    .det-cc.moto .nm {
+      color: var(--purple);
+    }
+
+    .det-result-section {
+      display: none;
+    }
+
+    .det-res-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .det-res-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+
+    .det-res-item .lb {
+      font-family: var(--mono);
+      font-size: .6rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .det-res-item .vl {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 2rem;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .det-res-item.car .vl {
+      color: var(--amber);
+    }
+
+    .det-res-item.bus .vl {
+      color: var(--green);
+    }
+
+    .det-res-item.truk .vl {
+      color: var(--cyan);
+    }
+
+    .det-res-item.moto .vl {
+      color: var(--purple);
+    }
+
+    .det-res-total {
+      border: 1px solid var(--border2);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      background: linear-gradient(135deg, #0d1117 0%, #121c28 100%);
+    }
+
+    .det-res-total .lb {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .det-res-total .vl {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 2.4rem;
+      color: #fff;
+    }
+
+    .det-res-meta {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+      line-height: 1.9;
+      margin-top: 8px;
+    }
+
+    .det-error {
+      display: none;
+      background: rgba(255, 69, 69, .07);
+      border: 1px solid var(--red-dim);
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: .68rem;
+      padding: 9px 12px;
+      letter-spacing: .05em;
+    }
+
+    .btn-detect {
+      border-color: var(--cyan) !important;
+      color: var(--cyan) !important;
+    }
+
+    .btn-detect:hover {
+      background: rgba(0, 212, 255, .07) !important;
+    }
+  </style>
 </head>
 
 <body>
 
-    <!-- Alert Bar -->
-    <div id="alert-bar" class="hidden">
-        <div class="alert-prefix">⚠ PERINGATAN</div>
-        <div class="marquee-wrap">
-            <div class="marquee-track">
-                <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
-                <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
-                <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
-                <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
-            </div>
+  <!-- Alert Bar -->
+  <div id="alert-bar" class="hidden">
+    <div class="alert-prefix">⚠ PERINGATAN</div>
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
+        <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
+        <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
+        <span>HATI-HATI KENDARAAN BESAR AKAN MELINTAS</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
+
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <h1>Vehicle Detection Dashboard</h1>
+        <div class="subtitle">// YOLOV12 · RT-DETR · BYTETRACK · SUPABASE</div>
+      </div>
+      <div class="header-right">
+        <div class="status-dot" id="status-text">MENGHUBUNGKAN...</div>
+        <div class="session-row">
+          <label>PILIH SESI :</label>
+          <select id="session-select">
+            <option value="">-- Memuat data... --</option>
+          </select>
+          <button class="btn-refresh" onclick="loadSessions()" title="Refresh daftar sesi">⟳ REFRESH</button>
+          <button class="btn-refresh btn-detect" onclick="openDetectionModal()">+ DETEKSI BARU</button>
         </div>
-    </div>
+      </div>
+    </header>
 
-    <div id="app">
+    <!-- Error -->
+    <div id="error-msg"></div>
 
-        <!-- Header -->
-        <header>
-            <div class="header-left">
-                <h1>Vehicle Detection Dashboard</h1>
-                <div class="subtitle">// YOLOV12 · RT-DETR · BYTETRACK · SUPABASE</div>
+    <!-- Default empty hint -->
+    <div id="empty-hint" class="empty-state">Pilih sesi deteksi di atas untuk menampilkan data.</div>
+
+    <!-- Content (tersembunyi sampai sesi dipilih) -->
+    <div id="content" style="display:none; display:flex; flex-direction:column; gap:20px;">
+
+      <!-- Stat Cards -->
+      <div class="cards-grid">
+        <div class="card card-car" id="card-car">
+          <div class="card-icon">🚗</div>
+          <div class="card-label">Mobil / Car</div>
+          <div class="card-value" id="val-car">—</div>
+          <div class="card-sublabel"></div>
+        </div>
+        <div class="card card-bus" id="card-bus">
+          <div class="card-icon">🚌</div>
+          <div class="card-label">Bus</div>
+          <div class="card-value" id="val-bus">—</div>
+          <div class="card-sublabel"></div>
+        </div>
+        <div class="card card-truck" id="card-truck">
+          <div class="card-icon">🚛</div>
+          <div class="card-label">Truk / Truck</div>
+          <div class="card-value" id="val-truck">—</div>
+          <div class="card-sublabel"></div>
+        </div>
+        <div class="card card-moto" id="card-moto">
+          <div class="card-icon">🏍️</div>
+          <div class="card-label">Motor / Motorcycle</div>
+          <div class="card-value" id="val-motorcycle">—</div>
+          <div class="card-sublabel"></div>
+        </div>
+        <div class="card card-total">
+          <div class="card-icon">📊</div>
+          <div class="card-label">Total Kendaraan</div>
+          <div class="card-value" id="val-total">—</div>
+          <div class="card-sublabel">semua kelas</div>
+        </div>
+      </div>
+
+      <!-- Chart + Meta -->
+      <div class="bottom-row">
+        <div class="panel">
+          <div class="panel-title">Distribusi Kendaraan per Class</div>
+          <div class="chart-wrap">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Info Sesi Deteksi</div>
+          <div class="meta-list">
+            <div class="meta-item"><span class="meta-key">Sumber Video</span><span class="meta-val"
+                id="meta-source">—</span></div>
+            <div class="meta-item"><span class="meta-key">Model</span><span class="meta-val" id="meta-model">—</span>
             </div>
-            <div class="header-right">
-                <div class="status-dot" id="status-text">MENGHUBUNGKAN...</div>
-                <div class="session-row">
-                    <label>PILIH SESI :</label>
-                    <select id="session-select">
-                        <option value="">-- Memuat data... --</option>
-                    </select>
-                    <button class="btn-refresh" onclick="loadSessions()" title="Refresh daftar sesi">⟳ REFRESH</button>
-                </div>
+            <div class="meta-item"><span class="meta-key">Resolusi</span><span class="meta-val" id="meta-res">—</span>
             </div>
-        </header>
-
-        <!-- Error -->
-        <div id="error-msg"></div>
-
-        <!-- Default empty hint -->
-        <div id="empty-hint" class="empty-state">Pilih sesi deteksi di atas untuk menampilkan data.</div>
-
-        <!-- Content (tersembunyi sampai sesi dipilih) -->
-        <div id="content" style="display:none; display:flex; flex-direction:column; gap:20px;">
-
-            <!-- Stat Cards -->
-            <div class="cards-grid">
-                <div class="card card-car" id="card-car">
-                    <div class="card-icon">🚗</div>
-                    <div class="card-label">Mobil / Car</div>
-                    <div class="card-value" id="val-car">—</div>
-                    <div class="card-sublabel"></div>
-                </div>
-                <div class="card card-bus" id="card-bus">
-                    <div class="card-icon">🚌</div>
-                    <div class="card-label">Bus</div>
-                    <div class="card-value" id="val-bus">—</div>
-                    <div class="card-sublabel"></div>
-                </div>
-                <div class="card card-truck" id="card-truck">
-                    <div class="card-icon">🚛</div>
-                    <div class="card-label">Truk / Truck</div>
-                    <div class="card-value" id="val-truck">—</div>
-                    <div class="card-sublabel"></div>
-                </div>
-                <div class="card card-moto" id="card-moto">
-                    <div class="card-icon">🏍️</div>
-                    <div class="card-label">Motor / Motorcycle</div>
-                    <div class="card-value" id="val-motorcycle">—</div>
-                    <div class="card-sublabel"></div>
-                </div>
-                <div class="card card-total">
-                    <div class="card-icon">📊</div>
-                    <div class="card-label">Total Kendaraan</div>
-                    <div class="card-value" id="val-total">—</div>
-                    <div class="card-sublabel">semua kelas</div>
-                </div>
+            <div class="meta-item"><span class="meta-key">FPS Video</span><span class="meta-val" id="meta-fps">—</span>
             </div>
-
-            <!-- Chart + Meta -->
-            <div class="bottom-row">
-                <div class="panel">
-                    <div class="panel-title">Distribusi Kendaraan per Class</div>
-                    <div class="chart-wrap">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-                <div class="panel">
-                    <div class="panel-title">Info Sesi Deteksi</div>
-                    <div class="meta-list">
-                        <div class="meta-item"><span class="meta-key">Sumber Video</span><span class="meta-val"
-                                id="meta-source">—</span></div>
-                        <div class="meta-item"><span class="meta-key">Model</span><span class="meta-val"
-                                id="meta-model">—</span>
-                        </div>
-                        <div class="meta-item"><span class="meta-key">Resolusi</span><span class="meta-val"
-                                id="meta-res">—</span>
-                        </div>
-                        <div class="meta-item"><span class="meta-key">FPS Video</span><span class="meta-val"
-                                id="meta-fps">—</span>
-                        </div>
-                        <div class="meta-item"><span class="meta-key">Durasi</span><span class="meta-val"
-                                id="meta-dur">—</span>
-                        </div>
-                        <div class="meta-item"><span class="meta-key">Total Frame</span><span class="meta-val"
-                                id="meta-frames">—</span></div>
-                        <div class="meta-item"><span class="meta-key">Dibuat Pada</span><span class="meta-val"
-                                id="meta-gen">—</span></div>
-                    </div>
-                </div>
+            <div class="meta-item"><span class="meta-key">Durasi</span><span class="meta-val" id="meta-dur">—</span>
             </div>
+            <div class="meta-item"><span class="meta-key">Total Frame</span><span class="meta-val"
+                id="meta-frames">—</span></div>
+            <div class="meta-item"><span class="meta-key">Dibuat Pada</span><span class="meta-val"
+                id="meta-gen">—</span></div>
+          </div>
+        </div>
+      </div>
 
-        </div><!-- /#content -->
+    </div><!-- /#content -->
 
-        <!-- Footer -->
-        <footer>
-            <span>VEHICLE DETECTION DASHBOARD v2.0 · BYTETRACK · SUPABASE</span>
-            <span>TERAKHIR DIPERBARUI: <span id="last-updated">—</span></span>
-        </footer>
+    <!-- Footer -->
+    <footer>
+      <span>VEHICLE DETECTION DASHBOARD v2.0 · BYTETRACK · SUPABASE</span>
+      <span>TERAKHIR DIPERBARUI: <span id="last-updated">—</span></span>
+    </footer>
 
-    </div>
+  </div>
 
-    <script>
-        /* ── State ── */
-        let barChart = null;
-        let currentSessId = null;
+  <script>
+    /* ── State ── */
+    let barChart = null;
+    let currentSessId = null;
 
-        /* ── Chart ── */
-        function initChart() {
-            const ctx = document.getElementById('barChart').getContext('2d');
-            barChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Car', 'Bus', 'Truck', 'Motorcycle'],
-                    datasets: [{
-                        label: 'Kendaraan Unik',
-                        data: [0, 0, 0, 0],
-                        backgroundColor: ['rgba(245,166,35,.75)', 'rgba(57,211,83,.75)', 'rgba(0,212,255,.75)', 'rgba(168,85,247,.75)'],
-                        borderColor: ['#f5a623', '#39d353', '#00d4ff', '#a855f7'],
-                        borderWidth: 2,
-                        borderRadius: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#0d1117', borderColor: '#243345', borderWidth: 1,
-                            titleColor: '#c9d8e8', bodyColor: '#c9d8e8',
-                            titleFont: { family: "'Share Tech Mono'" },
-                            bodyFont: { family: "'Share Tech Mono'" },
-                        }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#4a6278', font: { family: "'Share Tech Mono'", size: 11 } }, grid: { color: '#1c2a38' } },
-                        y: { ticks: { color: '#4a6278', font: { family: "'Share Tech Mono'", size: 11 } }, grid: { color: '#1c2a38' }, beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        /* ── Render data sesi ── */
-        function renderData(data) {
-            const c = data.counts;
-            const m = data.metadata;
-
-            document.getElementById('val-car').textContent = c.car.toLocaleString();
-            document.getElementById('val-bus').textContent = c.bus.toLocaleString();
-            document.getElementById('val-truck').textContent = c.truck.toLocaleString();
-            document.getElementById('val-motorcycle').textContent = c.motorcycle.toLocaleString();
-            document.getElementById('val-total').textContent = data.total.toLocaleString();
-
-            // Alert badge kartu
-            document.getElementById('card-bus').classList.toggle('alerted', c.bus > 0);
-            document.getElementById('card-truck').classList.toggle('alerted', c.truck > 0);
-
-            // Running text alert
-            document.getElementById('alert-bar').classList.toggle('hidden', !data.large_vehicle_alert);
-
-            // Chart
-            if (barChart) {
-                barChart.data.datasets[0].data = [c.car, c.bus, c.truck, c.motorcycle];
-                barChart.update('active');
+    /* ── Chart ── */
+    function initChart() {
+      const ctx = document.getElementById('barChart').getContext('2d');
+      barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Car', 'Bus', 'Truck', 'Motorcycle'],
+          datasets: [{
+            label: 'Kendaraan Unik',
+            data: [0, 0, 0, 0],
+            backgroundColor: ['rgba(245,166,35,.75)', 'rgba(57,211,83,.75)', 'rgba(0,212,255,.75)', 'rgba(168,85,247,.75)'],
+            borderColor: ['#f5a623', '#39d353', '#00d4ff', '#a855f7'],
+            borderWidth: 2,
+            borderRadius: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0d1117', borderColor: '#243345', borderWidth: 1,
+              titleColor: '#c9d8e8', bodyColor: '#c9d8e8',
+              titleFont: { family: "'Share Tech Mono'" },
+              bodyFont: { family: "'Share Tech Mono'" },
             }
+          },
+          scales: {
+            x: { ticks: { color: '#4a6278', font: { family: "'Share Tech Mono'", size: 11 } }, grid: { color: '#1c2a38' } },
+            y: { ticks: { color: '#4a6278', font: { family: "'Share Tech Mono'", size: 11 } }, grid: { color: '#1c2a38' }, beginAtZero: true }
+          }
+        }
+      });
+    }
 
-            // Metadata
-            document.getElementById('meta-source').textContent = m.video_source || '—';
-            document.getElementById('meta-model').textContent = m.model_used || '—';
-            document.getElementById('meta-res').textContent = m.resolution || '—';
-            document.getElementById('meta-fps').textContent = m.fps ? m.fps + ' fps' : '—';
-            document.getElementById('meta-dur').textContent = m.duration ? formatDuration(m.duration) : '—';
-            document.getElementById('meta-frames').textContent = m.total_frames ? m.total_frames.toLocaleString() + ' frame' : '—';
-            document.getElementById('meta-gen').textContent = m.generated_at ? m.generated_at.replace('T', ' ').slice(0, 19) : '—';
+    /* ── Render data sesi ── */
+    function renderData(data) {
+      const c = data.counts;
+      const m = data.metadata;
 
-            // Status & timestamp
-            document.getElementById('status-text').textContent = 'AKTIF · SUPABASE';
-            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString('id-ID');
+      document.getElementById('val-car').textContent = c.car.toLocaleString();
+      document.getElementById('val-bus').textContent = c.bus.toLocaleString();
+      document.getElementById('val-truck').textContent = c.truck.toLocaleString();
+      document.getElementById('val-motorcycle').textContent = c.motorcycle.toLocaleString();
+      document.getElementById('val-total').textContent = data.total.toLocaleString();
 
-            // Tampilkan konten, sembunyikan hint
-            document.getElementById('empty-hint').style.display = 'none';
-            document.getElementById('content').style.display = 'flex';
+      // Alert badge kartu
+      document.getElementById('card-bus').classList.toggle('alerted', c.bus > 0);
+      document.getElementById('card-truck').classList.toggle('alerted', c.truck > 0);
 
-            hideError();
+      // Running text alert
+      document.getElementById('alert-bar').classList.toggle('hidden', !data.large_vehicle_alert);
+
+      // Chart
+      if (barChart) {
+        barChart.data.datasets[0].data = [c.car, c.bus, c.truck, c.motorcycle];
+        barChart.update('active');
+      }
+
+      // Metadata
+      document.getElementById('meta-source').textContent = m.video_source || '—';
+      document.getElementById('meta-model').textContent = m.model_used || '—';
+      document.getElementById('meta-res').textContent = m.resolution || '—';
+      document.getElementById('meta-fps').textContent = m.fps ? m.fps + ' fps' : '—';
+      document.getElementById('meta-dur').textContent = m.duration ? formatDuration(m.duration) : '—';
+      document.getElementById('meta-frames').textContent = m.total_frames ? m.total_frames.toLocaleString() + ' frame' : '—';
+      document.getElementById('meta-gen').textContent = m.generated_at ? m.generated_at.replace('T', ' ').slice(0, 19) : '—';
+
+      // Status & timestamp
+      document.getElementById('status-text').textContent = 'AKTIF · SUPABASE';
+      document.getElementById('last-updated').textContent = new Date().toLocaleTimeString('id-ID');
+
+      // Tampilkan konten, sembunyikan hint
+      document.getElementById('empty-hint').style.display = 'none';
+      document.getElementById('content').style.display = 'flex';
+
+      hideError();
+    }
+
+    function formatDuration(sec) {
+      const m = Math.floor(sec / 60), s = Math.round(sec % 60);
+      return m > 0 ? `${m} mnt ${s} dtk` : `${s} dtk`;
+    }
+
+    /* ── Load daftar sesi dari Supabase ── */
+    async function loadSessions() {
+      const sel = document.getElementById('session-select');
+      sel.innerHTML = '<option value="">-- Memuat... --</option>';
+      document.getElementById('status-text').textContent = 'MEMUAT...';
+
+      try {
+        const res = await fetch('/api/sessions');
+        const json = await res.json();
+
+        if (json.error) { showError(json.error); return; }
+
+        const sessions = json.sessions || [];
+        if (sessions.length === 0) {
+          sel.innerHTML = '<option value="">-- Belum ada data --</option>';
+          document.getElementById('status-text').textContent = 'TIDAK ADA DATA';
+          return;
         }
 
-        function formatDuration(sec) {
-            const m = Math.floor(sec / 60), s = Math.round(sec % 60);
-            return m > 0 ? `${m} mnt ${s} dtk` : `${s} dtk`;
-        }
-
-        /* ── Load daftar sesi dari Supabase ── */
-        async function loadSessions() {
-            const sel = document.getElementById('session-select');
-            sel.innerHTML = '<option value="">-- Memuat... --</option>';
-            document.getElementById('status-text').textContent = 'MEMUAT...';
-
-            try {
-                const res = await fetch('/api/sessions');
-                const json = await res.json();
-
-                if (json.error) { showError(json.error); return; }
-
-                const sessions = json.sessions || [];
-                if (sessions.length === 0) {
-                    sel.innerHTML = '<option value="">-- Belum ada data --</option>';
-                    document.getElementById('status-text').textContent = 'TIDAK ADA DATA';
-                    return;
-                }
-
-                sel.innerHTML = '<option value="">-- Pilih Video --</option>';
-                sessions.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    const tgl = s.created_at ? s.created_at.replace('T', ' ').slice(0, 16) : '';
-                    const total = s.total_unique ?? 0;
-                    opt.textContent = `${s.video_name}  |  ${total} kendaraan  |  ${tgl}`;
-                    sel.appendChild(opt);
-                });
-
-                document.getElementById('status-text').textContent = 'SIAP';
-
-                // Jika sebelumnya sudah ada sesi dipilih, pertahankan pilihan
-                if (currentSessId) sel.value = currentSessId;
-
-            } catch (e) {
-                showError('Tidak dapat terhubung ke server Flask.');
-            }
-        }
-
-        /* ── Load detail sesi yang dipilih ── */
-        async function loadSession(id) {
-            if (!id) return;
-            currentSessId = id;
-
-            try {
-                const res = await fetch(`/api/session/${id}`);
-                const json = await res.json();
-                if (json.error) { showError(json.error); return; }
-                renderData(json);
-            } catch (e) {
-                showError('Gagal memuat detail sesi.');
-            }
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('error-msg');
-            el.textContent = '⚠ ' + msg;
-            el.style.display = 'block';
-            document.getElementById('status-text').textContent = 'ERROR';
-        }
-        function hideError() {
-            document.getElementById('error-msg').style.display = 'none';
-        }
-
-        /* ── Init ── */
-        document.addEventListener('DOMContentLoaded', () => {
-            initChart();
-            loadSessions();
-            document.getElementById('session-select')
-                .addEventListener('change', e => loadSession(e.target.value));
-
+        sel.innerHTML = '<option value="">-- Pilih Video --</option>';
+        sessions.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          const tgl = s.created_at ? s.created_at.replace('T', ' ').slice(0, 16) : '';
+          const total = s.total_unique ?? 0;
+          opt.textContent = `${s.video_name}  |  ${total} kendaraan  |  ${tgl}`;
+          sel.appendChild(opt);
         });
-    </script>
+
+        document.getElementById('status-text').textContent = 'SIAP';
+
+        // Jika sebelumnya sudah ada sesi dipilih, pertahankan pilihan
+        if (currentSessId) sel.value = currentSessId;
+
+      } catch (e) {
+        showError('Tidak dapat terhubung ke server Flask.');
+      }
+    }
+
+    /* ── Load detail sesi yang dipilih ── */
+    async function loadSession(id) {
+      if (!id) return;
+      currentSessId = id;
+
+      try {
+        const res = await fetch(`/api/session/${id}`);
+        const json = await res.json();
+        if (json.error) { showError(json.error); return; }
+        renderData(json);
+      } catch (e) {
+        showError('Gagal memuat detail sesi.');
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = '⚠ ' + msg;
+      el.style.display = 'block';
+      document.getElementById('status-text').textContent = 'ERROR';
+    }
+    function hideError() {
+      document.getElementById('error-msg').style.display = 'none';
+    }
+
+    /* ── Init ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      loadSessions();
+      document.getElementById('session-select')
+        .addEventListener('change', e => loadSession(e.target.value));
+
+      // Detection modal: assign element refs di sini karena modal HTML
+      // ada setelah script tag, harus tunggu DOMContentLoaded
+      detDrop = document.getElementById('det-drop-zone');
+      detInput = document.getElementById('det-file-input');
+      detStart = document.getElementById('det-start-btn');
+      detStop = document.getElementById('det-stop-btn');
+      detError = document.getElementById('det-error');
+      detProgW = document.getElementById('det-prog-wrap');
+      detProgF = document.getElementById('det-prog-fill');
+      detProgL = document.getElementById('det-prog-label');
+      detRerunBtn = document.getElementById('det-rerun-btn');
+
+      detDrop.addEventListener('dragover', e => { e.preventDefault(); detDrop.classList.add('drag-over'); });
+      detDrop.addEventListener('dragleave', () => detDrop.classList.remove('drag-over'));
+      detDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        detDrop.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) detHandleFile(e.dataTransfer.files[0]);
+      });
+      detInput.addEventListener('change', () => {
+        if (detInput.files[0]) detHandleFile(detInput.files[0]);
+      });
+    });
+
+    /* ── Detection Modal state & element vars ── */
+    let detFile = null;
+    let detPollTimer = null;
+    let detDrop, detInput, detStart, detStop, detError, detProgW, detProgF, detProgL, detRerunBtn;
+
+    function detectionRerun() {
+      const conf = (document.getElementById('det-conf').value / 100).toFixed(2);
+
+      detRerunBtn.style.display = 'none';
+      document.getElementById('det-reset-btn').style.display = 'none';
+      detStop.style.display = 'block';
+      detError.style.display = 'none';
+      detProgW.style.display = 'block';
+      detProgL.style.display = 'block';
+      detProgF.style.width = '0%';
+      document.getElementById('det-prog-pct').textContent = '0';
+      document.getElementById('det-result-section').style.display = 'none';
+      document.getElementById('det-stream-section').style.display = 'block';
+      document.getElementById('det-stream-img').src = '/video_feed?' + Date.now();
+
+      fetch('/redetect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model_key: detSelectedModel, conf: parseFloat(conf) }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) { detShowError(data.error); return; }
+          detPollTimer = setInterval(detPollStatus, 1000);
+        })
+        .catch(e => detShowError('Gagal: ' + e.message));
+    }
+
+    let detSelectedModel = "";
+
+    function openDetectionModal() {
+      document.getElementById('detection-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      fetch('/api/info').then(r => r.json()).then(d => {
+        document.getElementById('det-device-tag').textContent = (d.device || '—').toUpperCase();
+
+        const btnsEl = document.getElementById('det-model-btns');
+        btnsEl.innerHTML = '';
+        const models = d.available_models || [];
+
+        if (models.length === 0) {
+          detError.style.display = 'block';
+          detError.textContent = 'Model belum dimuat. Jalankan: python app.py --yolo ../yolov12.pt --rtdetr ../rt_detr.pt';
+          return;
+        }
+
+        const labels = { yolov12: 'YOLOv12', rtdetr: 'RT-DETR' };
+        models.forEach((key, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'det-model-btn' + (i === 0 ? ' active' : '');
+          btn.textContent = labels[key] || key.toUpperCase();
+          btn.dataset.key = key;
+          if (i === 0) detSelectedModel = key;
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.det-model-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            detSelectedModel = key;
+          });
+          btnsEl.appendChild(btn);
+        });
+      }).catch(() => { });
+    }
+
+    function closeDetectionModal() {
+      if (detPollTimer) { clearInterval(detPollTimer); detPollTimer = null; }
+      document.getElementById('detection-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function detHandleFile(f) {
+      detFile = f;
+      document.getElementById('det-file-info').style.display = 'block';
+      document.getElementById('det-fname').textContent = f.name;
+      document.getElementById('det-fsize').textContent = '(' + (f.size / 1024 / 1024).toFixed(1) + ' MB)';
+      detStart.disabled = false;
+      detError.style.display = 'none';
+    }
+
+    function detectionReset() {
+      detFile = null;
+      detStart.style.display = 'block';
+      detStart.disabled = true;
+      detStart.textContent = 'Mulai Deteksi';
+      detStop.style.display = 'none';
+      detRerunBtn.style.display = 'none';
+      document.getElementById('det-reset-btn').style.display = 'none';
+      document.getElementById('det-stream-section').style.display = 'none';
+      document.getElementById('det-result-section').style.display = 'none';
+      document.getElementById('det-file-info').style.display = 'none';
+      document.getElementById('det-fname').textContent = '';
+      document.getElementById('det-fsize').textContent = '';
+      detError.style.display = 'none';
+      detProgW.style.display = 'none';
+      detProgL.style.display = 'none';
+      detProgF.style.width = '0%';
+      detInput.value = '';
+    }
+
+    function detectionStart() {
+      if (!detFile) return;
+      const conf = (document.getElementById('det-conf').value / 100).toFixed(2);
+      const fd = new FormData();
+      fd.append('video', detFile);
+      fd.append('conf', conf);
+      fd.append('model_key', detSelectedModel);
+
+      detStart.disabled = true;
+      detStart.textContent = 'MENGUNGGAH...';
+      detError.style.display = 'none';
+      detProgW.style.display = 'block';
+      detProgL.style.display = 'block';
+      detProgF.style.width = '0%';
+      document.getElementById('det-prog-pct').textContent = '0';
+      document.getElementById('det-result-section').style.display = 'none';
+
+      fetch('/upload', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) { detShowError(data.error); return; }
+          detStart.style.display = 'none';
+          detStop.style.display = 'block';
+          document.getElementById('det-stream-section').style.display = 'block';
+          document.getElementById('det-stream-img').src = '/video_feed?' + Date.now();
+          detPollTimer = setInterval(detPollStatus, 1000);
+        })
+        .catch(e => detShowError('Upload gagal: ' + e.message));
+    }
+
+    function detectionStop() {
+      fetch('/stop', { method: 'POST' });
+    }
+
+    function detShowError(msg) {
+      detError.style.display = 'block';
+      detError.textContent = msg;
+      detStart.style.display = 'none';
+      detStop.style.display = 'none';
+      detRerunBtn.style.display = 'none';
+      document.getElementById('det-reset-btn').style.display = 'block';
+    }
+
+    function detPollStatus() {
+      fetch('/status').then(r => r.json()).then(data => {
+        const pct = data.progress || 0;
+        detProgF.style.width = pct + '%';
+        document.getElementById('det-prog-pct').textContent = pct.toFixed(0);
+        document.getElementById('det-stream-pct').textContent = pct.toFixed(0) + '%';
+        const c = data.counts || {};
+        document.getElementById('dlc-car').textContent = c.car || 0;
+        document.getElementById('dlc-bus').textContent = c.bus || 0;
+        document.getElementById('dlc-truck').textContent = c.truck || 0;
+        document.getElementById('dlc-moto').textContent = c.motorcycle || 0;
+
+        if (data.state === 'done') {
+          clearInterval(detPollTimer); detPollTimer = null;
+          detStop.style.display = 'none';
+          detStart.style.display = 'none';
+          detRerunBtn.style.display = 'block';
+          document.getElementById('det-reset-btn').style.display = 'block';
+          if (data.result) detShowResults(data.result);
+          loadSessions();
+        } else if (data.state === 'error') {
+          clearInterval(detPollTimer); detPollTimer = null;
+          detShowError(data.error || 'Terjadi error saat pemrosesan.');
+        }
+      }).catch(() => { });
+    }
+
+    function detShowResults(r) {
+      const c = r.summary.count_per_class;
+      document.getElementById('dr-car').textContent = c.car || 0;
+      document.getElementById('dr-bus').textContent = c.bus || 0;
+      document.getElementById('dr-truck').textContent = c.truck || 0;
+      document.getElementById('dr-moto').textContent = c.motorcycle || 0;
+      document.getElementById('dr-total').textContent = r.summary.total_unique_vehicles || 0;
+      const m = r.metadata;
+      document.getElementById('dr-meta').textContent =
+        'FILE: ' + m.video_source +
+        '  |  DURASI: ' + m.duration_seconds + 'S' +
+        '  |  WAKTU PROSES: ' + m.processing_time_seconds + 'S' +
+        '  |  DEVICE: ' + (m.device || '').toUpperCase();
+      document.getElementById('det-result-section').style.display = 'block';
+    }
+  </script>
+  <!-- Detection Modal -->
+  <div id="detection-modal">
+    <div class="det-panel">
+
+      <div class="det-panel-header">
+        <div class="det-panel-title">
+          Deteksi Kendaraan Baru
+        </div>
+        <button class="det-close" onclick="closeDetectionModal()">&#x2715; TUTUP</button>
+      </div>
+
+      <div class="det-body">
+
+        <div class="det-drop-zone" id="det-drop-zone">
+          <p class="main-lbl">Klik untuk pilih video atau drag &amp; drop di sini</p>
+          <p class="sub-lbl">Format: MP4, AVI, MOV, MKV &mdash; Maks 500 MB</p>
+          <input type="file" id="det-file-input" accept=".mp4,.avi,.mov,.mkv">
+        </div>
+
+        <div class="det-file-info" id="det-file-info">
+          <strong id="det-fname"></strong> &nbsp; <span id="det-fsize"></span>
+        </div>
+
+        <div class="det-settings">
+          <div class="det-si">
+            Confidence
+            <input type="range" id="det-conf" min="10" max="90" value="35"
+              oninput="document.getElementById('det-conf-val').textContent=(this.value/100).toFixed(2)">
+            <span class="v" id="det-conf-val">0.35</span>
+          </div>
+          <div class="det-si">Device <span class="tag" id="det-device-tag">—</span></div>
+        </div>
+
+        <div class="det-model-row" id="det-model-row">
+          <div class="det-si" style="margin-bottom:0">Model</div>
+          <div class="det-model-btns" id="det-model-btns"></div>
+        </div>
+
+        <button class="det-btn-start" id="det-start-btn" disabled onclick="detectionStart()">Mulai Deteksi</button>
+        <button class="det-btn-rerun" id="det-rerun-btn" onclick="detectionRerun()">Deteksi Ulang</button>
+        <button class="det-btn-stop" id="det-stop-btn" onclick="detectionStop()">Hentikan</button>
+        <button class="det-btn-reset" id="det-reset-btn" onclick="detectionReset()">Deteksi Video Baru</button>
+
+        <div class="det-error" id="det-error"></div>
+
+        <div class="det-prog-wrap" id="det-prog-wrap">
+          <div class="det-prog-fill" id="det-prog-fill"></div>
+        </div>
+        <div class="det-prog-label" id="det-prog-label">PROGRESS: <span id="det-prog-pct">0</span>%</div>
+
+        <div class="det-stream-section" id="det-stream-section">
+          <div class="det-section-title">Live Stream <span class="accent" id="det-stream-pct">0%</span></div>
+          <img id="det-stream-img" src="" alt="stream">
+          <div class="det-live-counts">
+            <div class="det-cc car">
+              <div class="lb">Car</div>
+              <div class="nm" id="dlc-car">0</div>
+            </div>
+            <div class="det-cc bus">
+              <div class="lb">Bus</div>
+              <div class="nm" id="dlc-bus">0</div>
+            </div>
+            <div class="det-cc truk">
+              <div class="lb">Truck</div>
+              <div class="nm" id="dlc-truck">0</div>
+            </div>
+            <div class="det-cc moto">
+              <div class="lb">Motorcycle</div>
+              <div class="nm" id="dlc-moto">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="det-result-section" id="det-result-section">
+          <div class="det-section-title">Hasil Akhir</div>
+          <div class="det-res-grid">
+            <div class="det-res-item car">
+              <div class="lb">Mobil</div>
+              <div class="vl" id="dr-car">0</div>
+            </div>
+            <div class="det-res-item bus">
+              <div class="lb">Bus</div>
+              <div class="vl" id="dr-bus">0</div>
+            </div>
+            <div class="det-res-item truk">
+              <div class="lb">Truk</div>
+              <div class="vl" id="dr-truck">0</div>
+            </div>
+            <div class="det-res-item moto">
+              <div class="lb">Motor</div>
+              <div class="vl" id="dr-moto">0</div>
+            </div>
+          </div>
+          <div class="det-res-total">
+            <div class="lb">Total Kendaraan Unik</div>
+            <div class="vl" id="dr-total">0</div>
+          </div>
+          <div class="det-res-meta" id="dr-meta"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
